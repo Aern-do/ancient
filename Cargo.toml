@@ -4,6 +4,16 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+derive_macro = { version = "0.1.0", path = "./derive_macro" }
 log = "0.4.17"
-fern = {version = "0.6.1", features = ["colored"]}
+fern = { version = "0.6.1", features = ["colored"] }
 chrono = "0.4.22"
+paste = "1.0.9"
+byteorder = "1.4.3"
+thiserror = "1.0.37"
+tokio = { version = "1.12", features = [
+    "rt-multi-thread",
+    "io-util",
+    "net",
+    "sync",
+] }

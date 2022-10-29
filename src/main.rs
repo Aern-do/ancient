@@ -1,15 +1,44 @@
-use std::{fs::remove_file, io, path::Path};
+pub mod connection;
+pub mod error;
+pub mod protocol;
+
+use std::{
+    fs::remove_file,
+    io,
+    net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpListener},
+    path::Path,
+    thread,
+};
 
 use chrono::Local;
+use error::Error;
 use fern::{
     colors::{Color, ColoredLevelConfig},
     log_file, Dispatch,
 };
-use log::LevelFilter;
+use log::{info, LevelFilter};
 
-fn main() {
+use crate::connection::Connection;
+
+fn main() -> Result<(), Error> {
     clear_logs();
     init_logging();
+    info!("Starting server...");
+    start()
+}
+fn start() -> Result<(), Error> {
+    let listener = TcpListener::bind(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        25565,
+    )))?;
+    while let Ok((stream, address)) = listener.accept() {
+        info!("Recivied new connection from {}", address);
+        thread::spawn::<_, Result<(), Error>>(move || {
+            let connection = Connection::new();
+            connection.start_receiving(stream)
+        });
+    }
+    Ok(())
 }
 fn clear_logs() {
     let path = Path::new("server.log");
@@ -22,9 +51,11 @@ fn init_logging() {
         .error(Color::Red)
         .warn(Color::Yellow)
         .info(Color::White)
-        .debug(Color::White)
+        .debug(Color::BrightBlack)
         .trace(Color::BrightBlack);
-    let stdout_dispatcher = Dispatch::new().level(LevelFilter::Info).chain(io::stdout());
+    let stdout_dispatcher = Dispatch::new()
+        .level(LevelFilter::Debug)
+        .chain(io::stdout());
     let stderr_dispatcher = Dispatch::new()
         .level(LevelFilter::Error)
         .chain(io::stderr());
