@@ -69,7 +69,7 @@ impl Connection {
             stream.read_exact(&mut buffer)?;
             let mut cursor = Cursor::new(buffer);
             let identifier = i32::from(cursor.readable::<VarInt>()?);
-            debug!("Recivied packet with identifier {:#x}", identifier);
+            debug!("Received packet with identifier {:#x}", identifier);
             match self.state {
                 State::Handshaking if identifier == 0x0 => cursor
                     .readable::<Handshake>()?
@@ -81,9 +81,9 @@ impl Connection {
                     0x1 => cursor
                         .readable::<PingRequest>()?
                         .process(&mut stream, &mut self)?,
-                    _ => return Err(Error::UnsupportedPacket(identifier)),
+                    _ => return Err(Error::UnsupportedPacket(identifier, self.state)),
                 },
-                _ => return Err(Error::UnsupportedPacket(identifier)),
+                _ => return Err(Error::UnsupportedPacket(identifier, self.state)),
             }
         }
     }

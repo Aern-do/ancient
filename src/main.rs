@@ -1,45 +1,72 @@
 #![forbid(missing_debug_implementations)]
+pub mod config;
 pub mod connection;
 pub mod error;
 pub mod protocol;
 
 use std::{
-    fs::remove_file,
-    io,
-    net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpListener},
+    fs::{read_to_string, remove_file, File},
+    io::{self, ErrorKind, Write},
+    net::{SocketAddr, SocketAddrV4, TcpListener},
     path::Path,
     thread,
 };
 
 use chrono::Local;
+use config::Config;
 use error::Error;
 use fern::{
     colors::{Color, ColoredLevelConfig},
     log_file, Dispatch,
 };
-use log::{info, LevelFilter};
+use log::{error, info, LevelFilter};
+use toml::{from_str, to_string_pretty};
 
 use crate::connection::Connection;
 
 fn main() -> Result<(), Error> {
     clear_logs();
     init_logging();
-    info!("Starting server...");
-    start()
+    let config = get_config()?;
+    info!("Server started");
+    start(config)
 }
-fn start() -> Result<(), Error> {
+fn start(config: Config) -> Result<(), Error> {
     let listener = TcpListener::bind(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        25565,
+        config.address,
+        config.port,
     )))?;
     while let Ok((stream, address)) = listener.accept() {
         info!("Recivied new connection from {}", address);
-        thread::spawn::<_, Result<(), Error>>(move || {
+        thread::spawn(move || {
             let connection = Connection::new();
-            connection.start_receiving(stream)
+            match connection.start_receiving(stream) {
+                Err(Error::Io(io)) if io.kind() == ErrorKind::UnexpectedEof => {}
+                Err(err) => error!("{}", err),
+                Ok(..) => {}
+            }
         });
     }
     Ok(())
+}
+fn get_config() -> Result<Config, Error> {
+    let path = Path::new("config.toml");
+    if !path.exists() {
+        create_default_config(path)
+    } else {
+        read_config(path)
+    }
+}
+fn read_config(path: &Path) -> Result<Config, Error> {
+    let config = read_to_string(path)?;
+    Ok(from_str(&config)?)
+}
+fn create_default_config(path: &Path) -> Result<Config, Error> {
+    let config = Config::default();
+    let mut file = File::create(path)?;
+    let string = to_string_pretty(&config)?;
+    file.write_all(string.as_bytes())?;
+    Ok(config)
 }
 fn clear_logs() {
     let path = Path::new("server.log");
