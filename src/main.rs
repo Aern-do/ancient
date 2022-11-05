@@ -20,6 +20,7 @@ use fern::{
     log_file, Dispatch,
 };
 use log::{error, info, LevelFilter};
+use tokio::runtime::Runtime;
 use toml::{from_str, to_string_pretty};
 
 use crate::connection::Connection;
