@@ -10,6 +10,8 @@ fern = { version = "0.6.1", features = ["colored"] }
 chrono = "0.4.22"
 paste = "1.0.9"
 byteorder = "1.4.3"
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0.87"
 thiserror = "1.0.37"
 tokio = { version = "1.12", features = [
     "rt-multi-thread",

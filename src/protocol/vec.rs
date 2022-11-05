@@ -7,6 +7,7 @@ use crate::error::Error;
 
 use super::{ReadExt, Readable, WriteExt, Writeable};
 
+#[derive(Debug)]
 pub struct PrefixedVec<T, P> {
     pub inner: Vec<T>,
     _preifx: PhantomData<P>,

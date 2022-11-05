@@ -1,3 +1,4 @@
+#![forbid(missing_debug_implementations)]
 pub mod connection;
 pub mod error;
 pub mod protocol;
