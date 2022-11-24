@@ -13,4 +13,6 @@ pub enum Error {
     ReadConfig(#[from] toml::de::Error),
     #[error("Error when writing config\n{0}")]
     WriteConfig(#[from] toml::ser::Error),
+    #[error("Error when reading/writing json")]
+    Json(#[from] serde_json::error::Error)
 }

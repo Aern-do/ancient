@@ -5,6 +5,7 @@ pub mod string;
 pub mod varint;
 pub mod varlong;
 pub mod vec;
+pub mod json;
 
 use std::io::{Read, Write};
 
