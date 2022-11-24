@@ -1,3 +1,4 @@
 /target
 server.log
 config.toml
+.DS_Store

@@ -20,7 +20,6 @@ use fern::{
     log_file, Dispatch,
 };
 use log::{error, info, LevelFilter};
-use tokio::runtime::Runtime;
 use toml::{from_str, to_string_pretty};
 
 use crate::connection::Connection;
@@ -28,9 +27,8 @@ use crate::connection::Connection;
 fn main() -> Result<(), Error> {
     clear_logs();
     init_logging();
-    let config = get_config()?;
     info!("Server started");
-    start(config)
+    start(get_config()?)
 }
 fn start(config: Config) -> Result<(), Error> {
     let listener = TcpListener::bind(SocketAddr::V4(SocketAddrV4::new(
@@ -42,7 +40,9 @@ fn start(config: Config) -> Result<(), Error> {
         thread::spawn(move || {
             let connection = Connection::new();
             match connection.start_receiving(stream) {
-                Err(Error::Io(io)) if io.kind() == ErrorKind::UnexpectedEof => {}
+                Err(Error::Io(io)) if io.kind() == ErrorKind::UnexpectedEof => {
+                    info!("{} closed a connection", address)
+                }
                 Err(err) => error!("{}", err),
                 Ok(..) => {}
             }
