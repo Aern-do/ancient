@@ -1,5 +1,3 @@
-use std::io::{Read, Write};
-
 use derive_macro::Readable;
 
 use crate::{
@@ -14,16 +12,9 @@ pub struct PingRequest {
 }
 
 impl Processable for PingRequest {
-    fn process<S: Read + Write>(
-        self,
-        stream: &mut S,
-        connection: &mut Connection,
-    ) -> Result<(), Error> {
-        connection.write_packet(
-            stream,
-            PingResponse {
-                payload: self.payload,
-            },
-        )
+    fn process(self, connection: &mut Connection) -> Result<(), Error> {
+        connection.write_packet(PingResponse {
+            payload: self.payload,
+        })
     }
 }

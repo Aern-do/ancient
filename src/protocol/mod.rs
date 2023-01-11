@@ -1,11 +1,15 @@
+pub mod array;
+pub mod auth_response;
 pub mod chat;
+pub mod json;
+pub mod optional;
 pub mod packets;
 pub mod primitive;
 pub mod string;
+pub mod uuid;
 pub mod varint;
 pub mod varlong;
 pub mod vec;
-pub mod json;
 
 use std::io::{Read, Write};
 
@@ -59,11 +63,7 @@ macro_rules! packet {
     };
 }
 pub trait Processable: Sized {
-    fn process<S: Read + Write>(
-        self,
-        stream: &mut S,
-        connection: &mut Connection,
-    ) -> Result<(), Error>;
+    fn process(self, connection: &mut Connection) -> Result<(), Error>;
 }
 pub trait Readable: Sized {
     fn read<R: Read>(reader: &mut R) -> Result<Self, Error>;

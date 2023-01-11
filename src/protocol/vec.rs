@@ -51,9 +51,9 @@ impl<T: Readable, P: Into<usize> + Readable> Readable for PrefixedVec<T, P> {
     }
 }
 
-impl<T: Writeable, P: From<usize> + Writeable> Writeable for PrefixedVec<T, P> {
+impl<T: Writeable, P: From<i32> + Writeable> Writeable for PrefixedVec<T, P> {
     fn write<W: Write>(self, writer: &mut W) -> Result<(), Error> {
-        writer.writeable(P::from(self.inner.len()))?;
+        writer.writeable(P::from(self.inner.len() as i32))?;
         for element in self.inner {
             writer.writeable(element)?;
         }

@@ -14,5 +14,11 @@ pub enum Error {
     #[error("Error when writing config\n{0}")]
     WriteConfig(#[from] toml::ser::Error),
     #[error("Error when reading/writing json")]
-    Json(#[from] serde_json::error::Error)
+    Json(#[from] serde_json::error::Error),
+    #[error("Invalid UUID\n{0}")]
+    InvalidUuid(#[from] uuid::Error),
+    #[error("Cryptography error\n{0}")]
+    Crypto(#[from] rsa::errors::Error),
+    #[error("Error when authentication")]
+    Auth,
 }

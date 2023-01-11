@@ -1,4 +1,4 @@
-use std::io::{Read, Write};
+use std::io::Read;
 
 use derive_macro::Readable;
 
@@ -38,7 +38,7 @@ pub struct Handshake {
 }
 
 impl Processable for Handshake {
-    fn process<S: Read + Write>(self, _: &mut S, connection: &mut Connection) -> Result<(), Error> {
+    fn process(self, connection: &mut Connection) -> Result<(), Error> {
         connection.change_state(State::from(self.next_state));
         Ok(())
     }

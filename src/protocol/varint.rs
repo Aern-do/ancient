@@ -14,11 +14,17 @@ impl From<VarInt> for i32 {
         varint.0
     }
 }
+impl From<VarInt> for usize {
+    fn from(varint: VarInt) -> Self {
+        varint.0 as usize
+    }
+}
 impl From<i32> for VarInt {
     fn from(varint: i32) -> Self {
         Self(varint)
     }
 }
+
 impl Display for VarInt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)

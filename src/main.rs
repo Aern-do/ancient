@@ -3,6 +3,7 @@ pub mod config;
 pub mod connection;
 pub mod error;
 pub mod protocol;
+pub mod socket;
 
 use std::{
     fs::{read_to_string, remove_file, File},
@@ -10,6 +11,7 @@ use std::{
     net::{SocketAddr, SocketAddrV4, TcpListener},
     path::Path,
     thread,
+    time::Instant,
 };
 
 use chrono::Local;
@@ -20,15 +22,28 @@ use fern::{
     log_file, Dispatch,
 };
 use log::{error, info, LevelFilter};
+use once_cell::sync::Lazy;
+use rsa::RsaPrivateKey;
 use toml::{from_str, to_string_pretty};
 
 use crate::connection::Connection;
 
+pub const RSA_KEYPAIR_BITS: usize = 1024;
+pub static RSA_KEYPAIR: Lazy<RsaPrivateKey> = Lazy::new(|| {
+    RsaPrivateKey::new(&mut rand::thread_rng(), RSA_KEYPAIR_BITS)
+        .expect("Failed to generate RSA keypair")
+});
 fn main() -> Result<(), Error> {
     clear_logs();
     init_logging();
+    force_rsa_keypair();
     info!("Server started");
     start(get_config()?)
+}
+fn force_rsa_keypair() {
+    let instant = Instant::now();
+    let _ = Lazy::force(&RSA_KEYPAIR);
+    info!("Generated RSA keypair in {:#?}", instant.elapsed());
 }
 fn start(config: Config) -> Result<(), Error> {
     let listener = TcpListener::bind(SocketAddr::V4(SocketAddrV4::new(
@@ -38,8 +53,8 @@ fn start(config: Config) -> Result<(), Error> {
     while let Ok((stream, address)) = listener.accept() {
         info!("Recivied new connection from {}", address);
         thread::spawn(move || {
-            let connection = Connection::new();
-            match connection.start_receiving(stream) {
+            let connection = Connection::new(stream);
+            match connection.start_receiving() {
                 Err(Error::Io(io)) if io.kind() == ErrorKind::UnexpectedEof => {
                     info!("{} closed a connection", address)
                 }
@@ -84,6 +99,8 @@ fn init_logging() {
         .trace(Color::BrightBlack);
     let stdout_dispatcher = Dispatch::new()
         .level(LevelFilter::Debug)
+        .level_for("ureq", LevelFilter::Off)
+        .level_for("rustls", LevelFilter::Off)
         .chain(io::stdout());
     let stderr_dispatcher = Dispatch::new()
         .level(LevelFilter::Error)

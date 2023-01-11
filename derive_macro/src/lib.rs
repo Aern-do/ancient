@@ -3,7 +3,7 @@ pub(crate) mod input;
 use input::{Inner, Input};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{parse2, parse_macro_input, Data, DeriveInput};
+use syn::{parse2, parse_macro_input, Data, DeriveInput, Path};
 
 #[proc_macro_derive(Readable, attributes(inner))]
 pub fn readable(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -62,11 +62,13 @@ pub(crate) fn generate_readable(input: Input) -> TokenStream {
     for (field, inner) in input.fields {
         fields.push(match inner {
             Some(inner) => {
-                let path = inner.path;
-                let ident = field.ident.unwrap();
-                let ident_target = field.ty.to_token_stream().into_iter().next().unwrap();
+                let name = field.ident;
+                let field_type = field.ty;
+                let Path { segments, .. } = inner.path;
+                let last_arguments = &segments.last().unwrap().arguments;
+                let all_idents = segments.iter().map(|ident| &ident.ident);
                 quote! {
-                    #ident: #ident_target::from(reader.readable::<#path>()?)
+                    #name: <#field_type>::from(reader.readable::<#(#all_idents)::*#last_arguments>()?)
                 }
             }
             None => {

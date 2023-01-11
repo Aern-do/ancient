@@ -1,5 +1,3 @@
-use std::io::{Read, Write};
-
 use derive_macro::Readable;
 
 use crate::{
@@ -14,15 +12,11 @@ use crate::{
 #[derive(Clone, Debug, Readable)]
 pub struct StatusRequest {}
 impl Processable for StatusRequest {
-    fn process<S: Read + Write>(
-        self,
-        stream: &mut S,
-        connection: &mut Connection,
-    ) -> Result<(), Error> {
+    fn process(self, connection: &mut Connection) -> Result<(), Error> {
         let status = Status {
             version: Version {
-                name: String::from("1.19.2"),
-                protocol: 760,
+                name: String::from("1.19.3"),
+                protocol: 761,
             },
             players: Players {
                 max: 2022,
@@ -37,7 +31,7 @@ impl Processable for StatusRequest {
             enforces_secure_chat: false,
         };
         let response = serde_json::to_string_pretty(&status).unwrap();
-        connection.write_packet(stream, StatusResponse { response })?;
+        connection.write_packet(StatusResponse { response })?;
         Ok(())
     }
 }
