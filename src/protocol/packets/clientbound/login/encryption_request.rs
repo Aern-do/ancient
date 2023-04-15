@@ -1,11 +1,11 @@
-use derive_macro::{Readable, Writeable};
+use derive_macro::{Decode, Encode};
 
 use crate::{
     packet,
     protocol::{array::PrefixedArray, varint::VarInt, vec::PrefixedVec},
 };
 
-#[derive(Debug, Clone, Readable, Writeable)]
+#[derive(Debug, Clone, Decode, Encode)]
 pub struct EncryptionRequest {
     pub server_id: String,
     #[inner(PrefixedVec<u8, VarInt>)]

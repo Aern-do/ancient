@@ -1,11 +1,11 @@
 use std::io::Read;
 
-use derive_macro::Readable;
+use derive_macro::Decode;
 
 use crate::{
     connection::{Connection, State},
     error::Error,
-    protocol::{varint::VarInt, Processable, ReadExt, Readable},
+    protocol::{varint::VarInt, Processable, DecodeExt, Decode},
 };
 
 #[derive(Clone, Debug)]
@@ -23,12 +23,12 @@ impl From<i32> for NextState {
     }
 }
 
-impl Readable for NextState {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
-        Ok(NextState::from(i32::from(reader.readable::<VarInt>()?)))
+impl Decode for NextState {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
+        Ok(NextState::from(i32::from(reader.decode::<VarInt>()?)))
     }
 }
-#[derive(Clone, Debug, Readable)]
+#[derive(Clone, Debug, Decode)]
 pub struct Handshake {
     #[inner(VarInt)]
     pub protocol_version: i32,

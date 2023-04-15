@@ -1,8 +1,8 @@
-use derive_macro::Writeable;
+use derive_macro::Encode;
 
 use crate::packet;
 
-#[derive(Clone, Debug, Writeable)]
+#[derive(Clone, Debug, Encode)]
 pub struct PingResponse {
     pub payload: i64,
 }

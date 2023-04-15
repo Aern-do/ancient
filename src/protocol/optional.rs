@@ -2,27 +2,27 @@ use std::io::{Read, Write};
 
 use crate::error::Error;
 
-use super::{ReadExt, Readable, WriteExt, Writeable};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
-impl<T: Readable> Readable for Option<T> {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
-        let has_field = reader.readable()?;
+impl<T: Decode> Decode for Option<T> {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
+        let has_field = reader.decode()?;
         if has_field {
-            Ok(Some(reader.readable()?))
+            Ok(Some(reader.decode()?))
         } else {
             Ok(None)
         }
     }
 }
-impl<T: Writeable> Writeable for Option<T> {
-    fn write<W: Write>(self, writer: &mut W) -> Result<(), Error> {
+impl<T: Encode> Encode for Option<T> {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<(), Error> {
         match self {
             Some(data) => {
-                writer.writeable(true)?;
-                writer.writeable(data)?;
+                writer.encode(true)?;
+                writer.encode(data)?;
             }
             None => {
-                writer.writeable(false)?;
+                writer.encode(false)?;
             }
         }
         Ok(())

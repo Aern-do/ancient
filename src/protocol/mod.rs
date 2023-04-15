@@ -65,21 +65,21 @@ macro_rules! packet {
 pub trait Processable: Sized {
     fn process(self, connection: &mut Connection) -> Result<(), Error>;
 }
-pub trait Readable: Sized {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error>;
+pub trait Decode: Sized {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error>;
 }
-pub trait Writeable: Sized {
-    fn write<W: Write>(self, writer: &mut W) -> Result<(), Error>;
+pub trait Encode: Sized {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<(), Error>;
 }
-pub trait ReadExt: Read + Sized {
-    fn readable<R: Readable>(&mut self) -> Result<R, Error> {
-        R::read(self)
+pub trait DecodeExt: Read + Sized {
+    fn decode<R: Decode>(&mut self) -> Result<R, Error> {
+        R::decode(self)
     }
 }
-pub trait WriteExt: Write + Sized {
-    fn writeable<W: Writeable>(&mut self, value: W) -> Result<(), Error> {
-        value.write(self)
+pub trait EncodeExt: Write + Sized {
+    fn encode<W: Encode>(&mut self, value: W) -> Result<(), Error> {
+        value.encode(self)
     }
 }
-impl<T> ReadExt for T where T: Read {}
-impl<T> WriteExt for T where T: Write {}
+impl<T> DecodeExt for T where T: Read {}
+impl<T> EncodeExt for T where T: Write {}

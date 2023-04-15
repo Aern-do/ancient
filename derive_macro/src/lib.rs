@@ -5,21 +5,21 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{parse2, parse_macro_input, Data, DeriveInput, Path};
 
-#[proc_macro_derive(Readable, attributes(inner))]
-pub fn readable(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(Decode, attributes(inner))]
+pub fn decode(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
     let input = generate_input(input);
-    let generated = generate_readable(input);
+    let generated = generate_decode(input);
     proc_macro::TokenStream::from(generated)
 }
-#[proc_macro_derive(Writeable, attributes(inner))]
-pub fn writeable(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+#[proc_macro_derive(Encode, attributes(inner))]
+pub fn encode(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
     let input = generate_input(input);
-    let generated = generate_writeable(input);
+    let generated = generate_encode(input);
     proc_macro::TokenStream::from(generated)
 }
-pub(crate) fn generate_writeable(input: Input) -> TokenStream {
+pub(crate) fn generate_encode(input: Input) -> TokenStream {
     let mut fields = vec![];
     for (field, inner) in input.fields {
         fields.push(match inner {
@@ -31,33 +31,33 @@ pub(crate) fn generate_writeable(input: Input) -> TokenStream {
                 // Rewrite this code
                 if [String::from("VarInt"), String::from("VarLong")].contains(&ident.to_string()) {
                     quote! {
-                        writer.writeable(#ident::from(self.#name))?;
+                        writer.encode(#ident::from(self.#name))?;
                     }
                 } else {
                     quote! {
-                        writer.writeable(#ident::#path::from(self.#name))?;
+                        writer.encode(#ident::#path::from(self.#name))?;
                     }
                 }
             }
             None => {
                 let name = field.ident.unwrap();
                 quote! {
-                    writer.writeable(self.#name)?;
+                    writer.encode(self.#name)?;
                 }
             }
         })
     }
     let name = input.ident;
     quote! {
-        impl crate::protocol::Writeable for #name {
-            fn write<W: std::io::Write + crate::protocol::WriteExt>(self, writer: &mut W) -> Result<(), crate::error::Error> {
+        impl crate::protocol::Encode for #name {
+            fn encode<W: std::io::Write + crate::protocol::EncodeExt>(self, writer: &mut W) -> Result<(), crate::error::Error> {
                 #(#fields)*
                 Ok(())
             }
         }
     }
 }
-pub(crate) fn generate_readable(input: Input) -> TokenStream {
+pub(crate) fn generate_decode(input: Input) -> TokenStream {
     let mut fields = vec![];
     for (field, inner) in input.fields {
         fields.push(match inner {
@@ -68,21 +68,21 @@ pub(crate) fn generate_readable(input: Input) -> TokenStream {
                 let last_arguments = &segments.last().unwrap().arguments;
                 let all_idents = segments.iter().map(|ident| &ident.ident);
                 quote! {
-                    #name: <#field_type>::from(reader.readable::<#(#all_idents)::*#last_arguments>()?)
+                    #name: <#field_type>::from(reader.decode::<#(#all_idents)::*#last_arguments>()?)
                 }
             }
             None => {
                 let name = field.ident.unwrap();
                 quote! {
-                    #name: reader.readable()?
+                    #name: reader.decode()?
                 }
             }
         })
     }
     let ident = input.ident;
     quote! {
-        impl crate::protocol::Readable for #ident {
-            fn read<R: std::io::Read + crate::protocol::ReadExt>(reader: &mut R) -> Result<Self, crate::error::Error> {
+        impl crate::protocol::Decode for #ident {
+            fn decode<R: std::io::Read + crate::protocol::DecodeExt>(reader: &mut R) -> Result<Self, crate::error::Error> {
                 Ok(Self {
                     #(#fields),*
                 })

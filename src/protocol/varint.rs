@@ -5,7 +5,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{ReadExt, Readable, WriteExt, Writeable};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
 #[derive(Clone, Copy, Debug)]
 pub struct VarInt(pub i32);
@@ -30,11 +30,11 @@ impl Display for VarInt {
         write!(f, "{}", self.0)
     }
 }
-impl Readable for VarInt {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
+impl Decode for VarInt {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
         let mut answer = 0;
         for i in 0..4 {
-            let byte = reader.readable::<u8>()?;
+            let byte = reader.decode::<u8>()?;
             answer |= ((byte & 0b0111_1111) as i32) << (7 * i);
             if byte & 0b1000_0000 == 0 {
                 break;
@@ -43,15 +43,15 @@ impl Readable for VarInt {
         Ok(VarInt(answer))
     }
 }
-impl Writeable for VarInt {
-    fn write<W: Write>(mut self, writer: &mut W) -> Result<(), Error> {
+impl Encode for VarInt {
+    fn encode<W: Write>(mut self, writer: &mut W) -> Result<(), Error> {
         loop {
             let mut temp = (self.0 & 0b01111111) as u8;
             self.0 >>= 7;
             if self.0 != 0 {
                 temp |= 0b10000000;
             }
-            writer.writeable(temp)?;
+            writer.encode(temp)?;
             if self.0 == 0 {
                 break;
             }
