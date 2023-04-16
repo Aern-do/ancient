@@ -6,7 +6,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{ReadExt, Readable, WriteExt, Writeable};
+use super::{Decode, DecodeExt, Encode, EncodeExt};
 
 #[derive(Debug, Clone)]
 pub struct PrefixedArray<P, T, const S: usize> {
@@ -33,22 +33,22 @@ impl<P, T, const S: usize> From<PrefixedArray<P, T, S>> for [T; S] {
         prefixed_array.inner
     }
 }
-impl<P: From<i32> + Writeable, T: Writeable, const S: usize> Writeable for PrefixedArray<P, T, S> {
-    fn write<W: Write>(self, writer: &mut W) -> Result<(), Error> {
-        writer.writeable(P::from(S as i32))?;
+impl<P: From<i32> + Encode, T: Encode, const S: usize> Encode for PrefixedArray<P, T, S> {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<(), Error> {
+        writer.encode(P::from(S as i32))?;
         for element in self.inner {
-            writer.writeable(element)?;
+            writer.encode(element)?;
         }
         Ok(())
     }
 }
 
-impl<P: Readable, T: Readable, const S: usize> Readable for PrefixedArray<P, T, S> {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
-        reader.readable::<P>()?;
+impl<P: Decode, T: Decode, const S: usize> Decode for PrefixedArray<P, T, S> {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
+        reader.decode::<P>()?;
         let mut uninit: [MaybeUninit<T>; S] = unsafe { MaybeUninit::uninit().assume_init() };
         for element in uninit.iter_mut().take(S) {
-            *element = MaybeUninit::new(reader.readable::<T>()?);
+            *element = MaybeUninit::new(reader.decode::<T>()?);
         }
         Ok(Self {
             inner: uninit.map(|uninit| unsafe { uninit.assume_init() }),

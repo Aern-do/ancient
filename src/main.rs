@@ -14,6 +14,7 @@ use std::{
     time::Instant,
 };
 
+use crate::connection::Connection;
 use chrono::Local;
 use config::Config;
 use error::Error;
@@ -25,8 +26,6 @@ use log::{error, info, LevelFilter};
 use once_cell::sync::Lazy;
 use rsa::RsaPrivateKey;
 use toml::{from_str, to_string_pretty};
-
-use crate::connection::Connection;
 
 pub const RSA_KEYPAIR_BITS: usize = 1024;
 pub static RSA_KEYPAIR: Lazy<RsaPrivateKey> = Lazy::new(|| {

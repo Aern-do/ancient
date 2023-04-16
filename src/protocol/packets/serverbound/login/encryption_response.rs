@@ -1,4 +1,4 @@
-use derive_macro::{Readable, Writeable};
+use derive_macro::{Decode, Encode};
 use num_bigint::BigInt;
 use rsa::{pkcs8::EncodePublicKey, PaddingScheme};
 use sha1::{Digest, Sha1};
@@ -17,7 +17,7 @@ use crate::{
     RSA_KEYPAIR,
 };
 
-#[derive(Debug, Clone, Writeable, Readable)]
+#[derive(Debug, Clone, Decode, Encode)]
 pub struct EncryptionResponse {
     #[inner(PrefixedVec<_, VarInt>)]
     shared_secret: Vec<u8>,

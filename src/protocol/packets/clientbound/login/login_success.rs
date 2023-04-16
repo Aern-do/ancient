@@ -1,4 +1,4 @@
-use derive_macro::Writeable;
+use derive_macro::Encode;
 use uuid::Uuid;
 
 use crate::{
@@ -6,7 +6,7 @@ use crate::{
     protocol::{varint::VarInt, vec::PrefixedVec},
 };
 
-#[derive(Debug, Clone, Writeable)]
+#[derive(Debug, Clone, Encode)]
 pub struct LoginSuccess {
     pub uuid: Uuid,
     pub username: String,
@@ -14,7 +14,7 @@ pub struct LoginSuccess {
     pub properties: Vec<Property>,
 }
 packet!(0x02 -> LoginSuccess);
-#[derive(Debug, Clone, Writeable)]
+#[derive(Debug, Clone, Encode)]
 pub struct Property {
     pub name: String,
     pub value: String,

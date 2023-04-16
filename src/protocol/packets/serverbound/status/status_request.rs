@@ -1,4 +1,4 @@
-use derive_macro::Readable;
+use derive_macro::Decode;
 
 use crate::{
     connection::Connection,
@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-#[derive(Clone, Debug, Readable)]
+#[derive(Clone, Debug, Decode)]
 pub struct StatusRequest {}
 impl Processable for StatusRequest {
     fn process(self, connection: &mut Connection) -> Result<(), Error> {

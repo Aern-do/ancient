@@ -1,8 +1,8 @@
-use derive_macro::Writeable;
+use derive_macro::Encode;
 
 use crate::packet;
 
-#[derive(Debug, Clone, Writeable)]
+#[derive(Debug, Clone, Encode)]
 pub struct StatusResponse {
     pub response: String,
 }

@@ -4,18 +4,18 @@ use uuid::Uuid;
 
 use crate::error::Error;
 
-use super::{ReadExt, Readable, WriteExt, Writeable};
+use super::{Decode, DecodeExt, Encode, EncodeExt};
 
-impl Readable for Uuid {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
-        Ok(Self::from_u64_pair(reader.readable()?, reader.readable()?))
+impl Decode for Uuid {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
+        Ok(Self::from_u64_pair(reader.decode()?, reader.decode()?))
     }
 }
-impl Writeable for Uuid {
-    fn write<W: Write>(self, writer: &mut W) -> Result<(), Error> {
+impl Encode for Uuid {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<(), Error> {
         let (high_bits, low_bits) = self.as_u64_pair();
-        writer.writeable(high_bits)?;
-        writer.writeable(low_bits)?;
+        writer.encode(high_bits)?;
+        writer.encode(low_bits)?;
         Ok(())
     }
 }

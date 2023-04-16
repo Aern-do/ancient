@@ -1,4 +1,4 @@
-use derive_macro::Readable;
+use derive_macro::Decode;
 
 use crate::{
     connection::Connection,
@@ -6,7 +6,7 @@ use crate::{
     protocol::{packets::clientbound::status::ping_response::PingResponse, Processable},
 };
 
-#[derive(Debug, Clone, Readable)]
+#[derive(Debug, Clone, Decode)]
 pub struct PingRequest {
     pub payload: i64,
 }

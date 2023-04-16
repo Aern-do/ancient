@@ -1,4 +1,4 @@
-use derive_macro::{Readable, Writeable};
+use derive_macro::{Decode, Encode};
 use log::info;
 use rsa::pkcs8::EncodePublicKey;
 use uuid::Uuid;
@@ -11,7 +11,7 @@ use crate::{
     RSA_KEYPAIR,
 };
 
-#[derive(Debug, Clone, Writeable, Readable)]
+#[derive(Debug, Clone, Encode, Decode)]
 pub struct LoginStart {
     name: String,
     player_uuid: Option<Uuid>,

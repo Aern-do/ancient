@@ -5,7 +5,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{ReadExt, Readable, WriteExt, Writeable};
+use super::{Decode, DecodeExt, Encode, EncodeExt};
 
 #[derive(Debug)]
 pub struct PrefixedVec<T, P> {
@@ -37,12 +37,12 @@ impl<T, P> From<Vec<T>> for PrefixedVec<T, P> {
     }
 }
 
-impl<T: Readable, P: Into<usize> + Readable> Readable for PrefixedVec<T, P> {
-    fn read<R: Read>(reader: &mut R) -> Result<Self, Error> {
-        let length: usize = reader.readable::<P>()?.into();
+impl<T: Decode, P: Into<usize> + Decode> Decode for PrefixedVec<T, P> {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
+        let length: usize = reader.decode::<P>()?.into();
         let mut vec = vec![];
         for _ in 0..length {
-            vec.push(reader.readable::<T>()?)
+            vec.push(reader.decode::<T>()?)
         }
         Ok(Self {
             inner: vec,
@@ -51,11 +51,11 @@ impl<T: Readable, P: Into<usize> + Readable> Readable for PrefixedVec<T, P> {
     }
 }
 
-impl<T: Writeable, P: From<i32> + Writeable> Writeable for PrefixedVec<T, P> {
-    fn write<W: Write>(self, writer: &mut W) -> Result<(), Error> {
-        writer.writeable(P::from(self.inner.len() as i32))?;
+impl<T: Encode, P: From<i32> + Encode> Encode for PrefixedVec<T, P> {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<(), Error> {
+        writer.encode(P::from(self.inner.len() as i32))?;
         for element in self.inner {
-            writer.writeable(element)?;
+            writer.encode(element)?;
         }
         Ok(())
     }

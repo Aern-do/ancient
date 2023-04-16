@@ -15,7 +15,7 @@ use crate::{
             status::{ping_request::PingRequest, status_request::StatusRequest},
         },
         varint::VarInt,
-        Packet, Processable, ReadExt, WriteExt, Writeable,
+        DecodeExt, Encode, EncodeExt, Packet, Processable,
     },
     socket::Socket,
 };
@@ -63,39 +63,37 @@ impl Connection {
         info!("Encryption is enabled for {}", self.user.as_ref().unwrap());
         self.socket.enable_encryption(key);
     }
-    pub fn write_packet<P: Writeable + Packet>(&mut self, packet: P) -> Result<(), Error> {
+    pub fn write_packet<P: Encode + Packet>(&mut self, packet: P) -> Result<(), Error> {
         debug!("Writing packet with identifier 0x{:x}", P::identifier());
         let mut unprefixed = vec![];
-        unprefixed.writeable::<VarInt>(VarInt(P::identifier()))?;
-        unprefixed.writeable::<P>(packet)?;
+        unprefixed.encode::<VarInt>(VarInt(P::identifier()))?;
+        unprefixed.encode::<P>(packet)?;
         let mut prefixed = vec![];
-        prefixed.writeable::<VarInt>(VarInt(unprefixed.len() as i32))?;
+        prefixed.encode::<VarInt>(VarInt(unprefixed.len() as i32))?;
         prefixed.extend(unprefixed);
         self.write_all(&prefixed)?;
         Ok(())
     }
     pub fn start_receiving(mut self) -> Result<(), Error> {
         loop {
-            let length = i32::from(self.readable::<VarInt>()?);
+            let length = i32::from(self.decode::<VarInt>()?);
             let mut buffer = vec![0; length as usize];
             self.read_exact(&mut buffer)?;
             let mut cursor = Cursor::new(buffer);
-            let identifier = i32::from(cursor.readable::<VarInt>()?);
+            let identifier = i32::from(cursor.decode::<VarInt>()?);
             debug!("Received packet with identifier {:#x}", identifier);
             match self.state {
                 State::Handshaking if identifier == 0x0 => {
-                    cursor.readable::<Handshake>()?.process(&mut self)?
+                    cursor.decode::<Handshake>()?.process(&mut self)?
                 }
                 State::Status => match identifier {
-                    0x0 => cursor.readable::<StatusRequest>()?.process(&mut self)?,
-                    0x1 => cursor.readable::<PingRequest>()?.process(&mut self)?,
+                    0x0 => cursor.decode::<StatusRequest>()?.process(&mut self)?,
+                    0x1 => cursor.decode::<PingRequest>()?.process(&mut self)?,
                     _ => return Err(Error::UnsupportedPacket(identifier, self.state)),
                 },
                 State::Login => match identifier {
-                    0x0 => cursor.readable::<LoginStart>()?.process(&mut self)?,
-                    0x1 => cursor
-                        .readable::<EncryptionResponse>()?
-                        .process(&mut self)?,
+                    0x0 => cursor.decode::<LoginStart>()?.process(&mut self)?,
+                    0x1 => cursor.decode::<EncryptionResponse>()?.process(&mut self)?,
                     _ => return Err(Error::UnsupportedPacket(identifier, self.state)),
                 },
                 _ => return Err(Error::UnsupportedPacket(identifier, self.state)),

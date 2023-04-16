@@ -1,11 +1,11 @@
-use derive_macro::{Readable, Writeable};
+use derive_macro::{Decode, Encode};
 
 use crate::{
     packet,
     protocol::{chat::component::Component, json::Json},
 };
 
-#[derive(Clone, Debug, Readable, Writeable)]
+#[derive(Clone, Debug, Decode, Encode)]
 pub struct Disconnect {
     component: Json<Component>,
 }
