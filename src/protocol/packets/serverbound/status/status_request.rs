@@ -15,8 +15,8 @@ impl Processable for StatusRequest {
     fn process(self, connection: &mut Connection) -> Result<(), Error> {
         let status = Status {
             version: Version {
-                name: String::from("1.19.3"),
-                protocol: 761,
+                name: String::from("1.19.4"),
+                protocol: 762,
             },
             players: Players {
                 max: 2022,
