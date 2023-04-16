@@ -10,6 +10,7 @@ pub mod uuid;
 pub mod varint;
 pub mod varlong;
 pub mod vec;
+
 use std::io::{Read, Write};
 
 use serde::Serialize;

@@ -5,7 +5,7 @@ use derive_macro::Decode;
 use crate::{
     connection::{Connection, State},
     error::Error,
-    protocol::{varint::VarInt, Decode, DecodeExt, Processable},
+    protocol::{varint::VarInt, Processable, DecodeExt, Decode},
 };
 
 #[derive(Clone, Debug)]

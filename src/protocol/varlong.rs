@@ -5,7 +5,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{Decode, DecodeExt, Encode, EncodeExt};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
 #[derive(Clone, Copy, Debug)]
 pub struct VarLong(i64);

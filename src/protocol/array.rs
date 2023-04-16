@@ -6,7 +6,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{Decode, DecodeExt, Encode, EncodeExt};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
 #[derive(Debug, Clone)]
 pub struct PrefixedArray<P, T, const S: usize> {

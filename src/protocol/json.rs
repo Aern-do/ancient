@@ -4,20 +4,15 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::error::Error;
 
-use super::{varint::VarInt, Decode, DecodeExt, Encode, EncodeExt};
+use super::{varint::VarInt, DecodeExt, Decode, EncodeExt, Encode};
 
 #[derive(Clone, Debug)]
 pub struct Json<T>(T);
-
 impl<T> Json<T> {
     pub fn into_inner(self) -> T {
         self.0
     }
-    pub fn from_inner(inner: T) -> Self {
-        Self(inner)
-    }
 }
-
 impl<T: DeserializeOwned> Decode for Json<T> {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
         let length = i32::from(reader.decode::<VarInt>()?);

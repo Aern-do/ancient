@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::error::Error;
 
-use super::{Decode, DecodeExt, Encode, EncodeExt};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
 impl Decode for Uuid {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {

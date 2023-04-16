@@ -15,7 +15,7 @@ use crate::{
             status::{ping_request::PingRequest, status_request::StatusRequest},
         },
         varint::VarInt,
-        DecodeExt, Encode, EncodeExt, Packet, Processable,
+        Packet, Processable, DecodeExt, EncodeExt, Encode,
     },
     socket::Socket,
 };
@@ -93,7 +93,9 @@ impl Connection {
                 },
                 State::Login => match identifier {
                     0x0 => cursor.decode::<LoginStart>()?.process(&mut self)?,
-                    0x1 => cursor.decode::<EncryptionResponse>()?.process(&mut self)?,
+                    0x1 => cursor
+                        .decode::<EncryptionResponse>()?
+                        .process(&mut self)?,
                     _ => return Err(Error::UnsupportedPacket(identifier, self.state)),
                 },
                 _ => return Err(Error::UnsupportedPacket(identifier, self.state)),

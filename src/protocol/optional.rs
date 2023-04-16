@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 
 use crate::error::Error;
 
-use super::{Decode, DecodeExt, Encode, EncodeExt};
+use super::{DecodeExt, Decode, EncodeExt, Encode};
 
 impl<T: Decode> Decode for Option<T> {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
