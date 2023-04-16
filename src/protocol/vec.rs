@@ -5,7 +5,7 @@ use std::{
 
 use crate::error::Error;
 
-use super::{DecodeExt, Decode, EncodeExt, Encode};
+use super::{Decode, DecodeExt, Encode, EncodeExt};
 
 #[derive(Debug)]
 pub struct PrefixedVec<T, P> {

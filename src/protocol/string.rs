@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 
 use crate::error::Error;
 
-use super::{varint::VarInt, DecodeExt, Decode, EncodeExt, Encode};
+use super::{varint::VarInt, Decode, DecodeExt, Encode, EncodeExt};
 
 impl Decode for String {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, Error> {
