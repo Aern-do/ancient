@@ -1,5 +1,5 @@
 /target
-derive_macro/target
+/derive_macro/target
 server.log
 config.toml
 .DS_Store
