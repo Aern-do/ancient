@@ -2,7 +2,7 @@ use std::io::{self};
 
 use crate::error::Error;
 
-use super::{DecodeExt, Decode, EncodeExt, Encode};
+use super::{Decode, DecodeExt, Encode, EncodeExt};
 
 macro_rules! implement {
     (u8) => {
