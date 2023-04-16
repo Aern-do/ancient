@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 
+use indexmap::IndexMap;
 use proc_macro2::Ident;
 use syn::{
     parse::{Parse, ParseStream},
@@ -55,7 +55,7 @@ pub(crate) enum Attribute {
 #[derive(Debug, Clone)]
 pub(crate) struct Input {
     pub(crate) ident: Ident,
-    pub(crate) fields: HashMap<Field, Option<Attribute>>,
+    pub(crate) fields: IndexMap<Field, Option<Attribute>>,
 }
 
 impl Input {
