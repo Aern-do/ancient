@@ -27,8 +27,8 @@ macro_rules! implement_primitives {
     };
 }
 
-pub trait Primitive: Clone + Copy + Encode + Decode {}
-impl<P: Clone + Copy + Encode + Decode> Primitive for P {}
+pub trait Primitive: Clone + Copy + Encode + Decode + Default {}
+impl<P: Clone + Copy + Encode + Decode + Default> Primitive for P {}
 
 implement_primitives! {
     i8, i16<ProtocolEndian>, i32<ProtocolEndian>, i64<ProtocolEndian>,
@@ -68,16 +68,16 @@ mod tests {
     }
 
     test_encode! {
-        encode_i8<i8>(-10_i8) => [0xF6];
-        encode_i16<i16>(257_i16) => [0x01, 0x01];
-        encode_i32<i32>(65537_i32) => [0x00, 0x01, 0x00, 0x01];
-        encode_i64<i64>(-4294967297_i64) => [0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF];
-        encode_u8<u8>(11_u8) => [0x0B];
-        encode_u16<u16>(258_u16) => [0x01, 0x02];
-        encode_u32<u32>(65538_u32) => [0x00, 0x01, 0x00, 0x02];
-        encode_u64<u64>(4294967298_u64) => [0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02];
-        encode_f32<f32>(1.234_f32) => [0x3F, 0x9D, 0xF3, 0xB6];
-        encode_f64<f64>(1.23456789_f64) => [0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B];
-        encode_char<char>('A') => [0x41];
+        encode_i8(-10_i8) => [0xF6];
+        encode_i16(257_i16) => [0x01, 0x01];
+        encode_i32(65537_i32) => [0x00, 0x01, 0x00, 0x01];
+        encode_i64(-4294967297_i64) => [0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF];
+        encode_u8(11_u8) => [0x0B];
+        encode_u16(258_u16) => [0x01, 0x02];
+        encode_u32(65538_u32) => [0x00, 0x01, 0x00, 0x02];
+        encode_u64(4294967298_u64) => [0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02];
+        encode_f32(1.234_f32) => [0x3F, 0x9D, 0xF3, 0xB6];
+        encode_f64(1.23456789_f64) => [0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B];
+        encode_char('A') => [0x41];
     }
 }

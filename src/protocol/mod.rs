@@ -1,3 +1,4 @@
+pub mod array;
 pub mod primitive;
 pub mod string;
 
@@ -23,7 +24,7 @@ macro_rules! test_decode {
 
 #[macro_export]
 macro_rules! test_encode {
-    ($($name: ident<$target: ty>($input: expr) => $expected: expr);* $(;)?) => {
+    ($($name: ident($input: expr) => $expected: expr);* $(;)?) => {
         use $crate::protocol::EncodeExt;
         $(
             #[test]

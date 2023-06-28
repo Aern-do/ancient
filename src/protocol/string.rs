@@ -51,7 +51,7 @@ mod tests {
     }
 
     test_encode! {
-        encode_empty_string<PrefixedString<u8>>(&PrefixedString::new(0_u8, String::new())) => [0x0];
-        encode_string<PrefixedString<u8>>(&PrefixedString::new(12_u8, String::from("Hello, World"))) => [0xc, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64];
+        encode_empty_string(&PrefixedString::new(0_u8, String::new())) => [0x0];
+        encode_string(&PrefixedString::new(12_u8, String::from("Hello, World"))) => [0xc, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64];
     }
 }
