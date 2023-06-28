@@ -1,6 +1,7 @@
 pub mod array;
 pub mod primitive;
 pub mod string;
+pub mod uuid;
 pub mod vec;
 
 use std::io::{Read, Write};
