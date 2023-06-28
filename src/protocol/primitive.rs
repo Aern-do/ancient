@@ -49,6 +49,19 @@ impl Encode for char {
     }
 }
 
+impl Decode for bool {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self> {
+        Ok(reader.decode::<u8>()? != 0)
+    }
+}
+
+impl Encode for bool {
+    fn encode<W: Write>(self, writer: &mut W) -> Result<()> {
+        writer.encode(self as u8)?;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{test_decode, test_encode};
@@ -65,6 +78,8 @@ mod tests {
         decode_f32<f32>([0x3F, 0x9D, 0xF3, 0xB6]) => 1.234;
         decode_f64<f64>([0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B]) => 1.23456789;
         decode_char<char>([0x41]) => 'A';
+        decode_true<bool>([0x1]) => true;
+        decode_false<bool>([0x0]) => false;
     }
 
     test_encode! {
@@ -79,5 +94,7 @@ mod tests {
         encode_f32(1.234_f32) => [0x3F, 0x9D, 0xF3, 0xB6];
         encode_f64(1.23456789_f64) => [0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B];
         encode_char('A') => [0x41];
+        encode_true(true) => [0x1];
+        encode_false(false) => [0x0];
     }
 }
