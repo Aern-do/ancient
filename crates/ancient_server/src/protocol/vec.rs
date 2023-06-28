@@ -2,12 +2,20 @@ use std::io::{Read, Write};
 
 use crate::error::Result;
 
-use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, Prefix};
+use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, IntoInner, Prefix};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrefixedVec<P, T> {
     inner: Vec<T>,
     prefix: P,
+}
+
+impl<P, T> IntoInner for PrefixedVec<P, T> {
+    type Inner = Vec<T>;
+
+    fn into_inner(self) -> Self::Inner {
+        self.inner
+    }
 }
 
 impl<P, T> PrefixedVec<P, T> {

@@ -42,6 +42,12 @@ macro_rules! test_encode {
 
 pub type ProtocolEndian = BigEndian;
 
+pub trait IntoInner {
+    type Inner;
+
+    fn into_inner(self) -> Self::Inner;
+}
+
 pub trait Prefix: Into<usize> {}
 impl<L: Into<usize>> Prefix for L {}
 

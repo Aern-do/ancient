@@ -14,6 +14,7 @@ impl<T: Decode> Decode for Option<T> {
         }
     }
 }
+
 impl<T: Encode> Encode for Option<T> {
     fn encode<W: Write>(self, writer: &mut W) -> Result<()> {
         match self {

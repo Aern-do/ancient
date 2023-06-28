@@ -2,12 +2,20 @@ use std::io::{Read, Write};
 
 use crate::error::Result;
 
-use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, Prefix};
+use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, IntoInner, Prefix};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrefixedString<P> {
     prefix: P,
     inner: String,
+}
+
+impl<P> IntoInner for PrefixedString<P> {
+    type Inner = String;
+
+    fn into_inner(self) -> Self::Inner {
+        self.inner
+    }
 }
 
 impl<P> PrefixedString<P> {

@@ -6,12 +6,20 @@ use std::{
 
 use crate::error::Result;
 
-use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, Prefix};
+use super::{primitive::Primitive, Decode, DecodeExt, Encode, EncodeExt, IntoInner, Prefix};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrefixedArray<P, T, const SIZE: usize> {
     _prefix: PhantomData<P>,
     inner: [T; SIZE],
+}
+
+impl<P, T, const SIZE: usize> IntoInner for PrefixedArray<P, T, SIZE> {
+    type Inner = [T; SIZE];
+
+    fn into_inner(self) -> Self::Inner {
+        self.inner
+    }
 }
 
 impl<P, T, const SIZE: usize> PrefixedArray<P, T, SIZE> {
