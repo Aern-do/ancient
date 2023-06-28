@@ -1,4 +1,5 @@
 pub mod primitive;
+pub mod string;
 
 use std::io::{Read, Write};
 
@@ -8,7 +9,7 @@ use crate::error::Result;
 
 #[macro_export]
 macro_rules! test_decode {
-    ($($name: ident<$target: ident>($input: expr) => $expected: expr);* $(;)?) => {
+    ($($name: ident<$target: ty>($input: expr) => $expected: expr);* $(;)?) => {
         use $crate::protocol::DecodeExt;
         $(
             #[test]
@@ -22,7 +23,7 @@ macro_rules! test_decode {
 
 #[macro_export]
 macro_rules! test_encode {
-    ($($name: ident<$target: ident>($input: expr) => $expected: expr);* $(;)?) => {
+    ($($name: ident<$target: ty>($input: expr) => $expected: expr);* $(;)?) => {
         use $crate::protocol::EncodeExt;
         $(
             #[test]
@@ -35,8 +36,10 @@ macro_rules! test_encode {
     };
 }
 
-
 pub type ProtocolEndian = BigEndian;
+
+pub trait Prefix: Into<usize> {}
+impl<L: Into<usize>> Prefix for L {}
 
 pub trait Decode: Sized {
     fn decode<R: Read>(reader: &mut R) -> Result<Self>;
@@ -54,7 +57,7 @@ impl<'e, E: Encode + Copy> Encode for &'e E {
 
 pub trait DecodeExt: Read {
     fn decode<D: Decode>(&mut self) -> Result<D>
-    where   
+    where
         Self: Sized,
     {
         D::decode(self)

@@ -27,6 +27,8 @@ macro_rules! implement_primitives {
     };
 }
 
+pub trait Primitive: Clone + Copy + Encode + Decode {}
+impl<P: Clone + Copy + Encode + Decode> Primitive for P {}
 
 implement_primitives! {
     i8, i16<ProtocolEndian>, i32<ProtocolEndian>, i64<ProtocolEndian>,
